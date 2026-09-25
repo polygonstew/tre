@@ -1,6 +1,6 @@
 [package]
 name = "tre"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.88"
 description = "folders → .tre → folders. A modern tree/scaffolding CLI for the .tre format, with fish integration."
