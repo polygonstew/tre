@@ -1,0 +1,55 @@
+# Push a tag like v0.1.0 -> static linux binaries (x86_64 + aarch64) attached
+# to the GitHub release, each bundled with completions, fish functions and the man page.
+name: release
+on:
+  push:
+    tags: ['v*']
+permissions:
+  contents: write
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+          - target: aarch64-unknown-linux-musl
+            os: ubuntu-24.04-arm
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: sudo apt-get install -y -qq musl-tools
+      - run: cargo test
+      - run: cargo build --release --locked --target ${{ matrix.target }}
+      - name: package
+        run: |
+          name=tre-${{ github.ref_name }}-${{ matrix.target }}
+          bin=target/${{ matrix.target }}/release/tre
+          mkdir -p $name/completions $name/fish
+          cp $bin README.md LICENSE install.fish $name/
+          cp -r fish/functions $name/fish/
+          $bin --completions fish > $name/completions/tre.fish
+          $bin --completions bash > $name/completions/tre.bash
+          $bin --completions zsh  > $name/completions/_tre
+          $bin --man > $name/tre.1
+          tar czf $name.tar.gz $name
+          sha256sum $name.tar.gz | tee $name.tar.gz.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: tre-*.tar.gz*
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ github.ref_name }} --repo ${{ github.repository }} --title "tre ${{ github.ref_name }}" --generate-notes tre-*.tar.gz* \
+            || gh release upload ${{ github.ref_name }} --repo ${{ github.repository }} --clobber tre-*.tar.gz*

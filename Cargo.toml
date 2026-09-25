@@ -1,0 +1,37 @@
+[package]
+name = "tre"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "folders → .tre → folders. A modern tree/scaffolding CLI for the .tre format, with fish integration."
+license = "MIT"
+repository = "https://github.com/polygonstew/tre"
+readme = "README.md"
+keywords = ["tree", "scaffold", "cli", "fish", "directory"]
+categories = ["command-line-utilities", "filesystem"]
+exclude = ["/.github"]
+
+[dependencies]
+anstream = "1.0.0"
+anstyle = "1.0.14"
+anyhow = "1.0.104"
+clap = { version = "4.6.7", features = ["derive", "wrap_help", "env"] }
+clap_complete = "4.6.11"
+clap_mangen = "0.3.3"
+globset = "0.4.20"
+ignore = "0.4.33"
+lscolors = { version = "0.21.0", default-features = false }
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+
+[dev-dependencies]
+assert_cmd = "2.2.2"
+predicates = "3.1.4"
+serde_json = "1.0.151"
+tempfile = "3.27.0"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

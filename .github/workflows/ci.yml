@@ -1,0 +1,23 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - name: fish completions are up to date
+        run: |
+          cargo run -q -- --completions fish > /tmp/gen.fish
+          diff <(sed -n '/^complete -c tre -s o/,/^complete -c tre -s V/p' fish/completions/tre.fish) \
+               <(sed -n '/^complete -c tre -s o/,/^complete -c tre -s V/p' /tmp/gen.fish)
+      - name: fish functions parse
+        run: |
+          sudo apt-get install -y -qq fish
+          for f in fish/functions/*.fish fish/completions/*.fish install.fish; do fish --no-execute $f; done
