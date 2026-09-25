@@ -165,4 +165,4 @@ cargo test                     # 43 tests: parser, decoding, rendering, CLI end 
 cargo clippy --all-targets
 ```
 
-push a `v*` tag and the release workflow builds static x86_64 and aarch64 binaries and attaches them to the release with checksums.
+to release, push a `v*` tag, or run the **release** workflow from the Actions tab with the version. it builds static x86_64 and aarch64 binaries and attaches them to the release with checksums.
