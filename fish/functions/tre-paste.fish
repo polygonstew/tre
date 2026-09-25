@@ -2,7 +2,9 @@ function tre-paste --description 'Build the tree on the clipboard into the curre
     # fish_clipboard_paste knows wl-paste, xclip, xsel and pbpaste
     set -l tree (fish_clipboard_paste | string collect)
     if test -z "$tree"
-        echo (set_color red)"tre-paste:"(set_color normal)" the clipboard is empty" >&2
+        set -l red (set_color red)
+        set -l normal (set_color normal)
+        echo "$red""tre-paste:$normal the clipboard is empty" >&2
         return 1
     end
     # preview first unless told otherwise; pass -n to only preview
